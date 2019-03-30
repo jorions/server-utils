@@ -1,0 +1,69 @@
+Arguments: 
+  /usr/local/Cellar/nvm/0.33.8/versions/node/v8.15.0/bin/node /Users/jared/.yarn/bin/yarn.js lint
+
+PATH: 
+  /Users/jared/.rvm/gems/ruby-2.3.0/bin:/Users/jared/.rvm/gems/ruby-2.3.0@global/bin:/Users/jared/.rvm/rubies/ruby-2.3.0/bin:/Users/jared/.yarn/bin:/Users/jared/.config/yarn/global/node_modules/.bin:/usr/local/Cellar/nvm/0.33.8/versions/node/v8.15.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Users/jared/bin:/Users/jared/.rvm/bin
+
+Yarn version: 
+  1.13.0
+
+Node version: 
+  8.15.0
+
+Platform: 
+  darwin x64
+
+Trace: 
+  SyntaxError: /Users/jared/Desktop/Projects/EffectsLoop/server-utils/package.json: Unexpected token } in JSON at position 180
+      at JSON.parse (<anonymous>)
+      at /Users/jared/.yarn/lib/cli.js:1625:59
+      at Generator.next (<anonymous>)
+      at step (/Users/jared/.yarn/lib/cli.js:304:30)
+      at /Users/jared/.yarn/lib/cli.js:315:13
+      at <anonymous>
+
+npm manifest: 
+  {
+    "name": "server-utils",
+    "version": "1.0.0",
+    "description": "Utilities useful for spinning up servers",
+    "main": "index.js",
+    "scripts": {
+      "lint": "eslint . --fix",
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/effects-loop/server-utils.git"
+    },
+    "author": "Jared Selcoe and Jordan Namer",
+    "license": "ISC",
+    "bugs": {
+      "url": "https://github.com/effects-loop/server-utils/issues"
+    },
+    "homepage": "https://github.com/effects-loop/server-utils#readme",
+    "dependencies": {
+      "bunyan": "^1.8.12",
+      "koa": "^2.7.0",
+      "koa-bodyparser": "^4.2.1",
+      "koa-router": "^7.4.0",
+      "superstruct": "^0.6.1"
+    },
+    "devDependencies": {
+      "eslint": "^5.16.0",
+      "eslint-config-airbnb-base": "^13.1.0",
+      "eslint-config-prettier": "^4.1.0",
+      "eslint-plugin-import": "^2.16.0",
+      "eslint-plugin-prettier": "^3.0.1",
+      "pre-commit": "^1.2.2",
+      "prettier": "^1.16.4"
+    },
+    "pre-commit": [
+      "lint"
+    ]
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
