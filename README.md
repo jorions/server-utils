@@ -36,7 +36,7 @@ String (returns 500)
 
     OR
 
-    Number (status to return, which means the thrown error.message is sent)
+    Number (status to return, which means the thrown error.message is sent; if >= 500, logs as an error)
   ...
   defaultMessage: same as msg
 }
