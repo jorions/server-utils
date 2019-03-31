@@ -21,6 +21,7 @@ module.exports = {
     // default value, this 'strict' rule would not apply without it.
     'strict': ['error', 'global'],
     'prettier/prettier': ['error'],
-    'consistent-return': 0
+    'consistent-return': 0,
+    'no-param-reassign': 0,
   },
 }
