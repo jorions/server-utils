@@ -22,7 +22,7 @@ OR
 
 String (returns 500)
 ```
-* options:
+* `options`:
 ```
 {
   [optionCode]:
@@ -54,7 +54,7 @@ Standard errors have the format:
 {
   error: {
     message: String
-    code: String (err.code/codeOverride) // Not sent for generic errors
+    code: String (options[err.code].code || err.code) // Not sent for generic errors, or when options[err.code].noCode is passed
   }
 }
 ```
