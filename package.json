@@ -1,6 +1,6 @@
 {
   "name": "effectsloop-server-utils",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Utilities useful for spinning up servers",
   "main": "index.js",
   "scripts": {
@@ -20,8 +20,7 @@
     "bunyan": "^1.8.12",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
-    "koa-router": "^7.4.0",
-    "superstruct": "^0.6.1"
+    "koa-router": "^7.4.0"
   },
   "devDependencies": {
     "eslint": "^5.16.0",

@@ -6,10 +6,10 @@
 
 ### Arguments
 
-Receives `{ response, state, err, msg, options }`
-* `response`: response object
-* `state`: koa state
-* `err`: the thrown error
+Receives `{ response, state, err, msg, options, StructError }`
+* `response`: response object (required)
+* `state`: koa state (required)
+* `err`: the thrown error (required)
 * `msg`:
 ```
 {
@@ -41,6 +41,7 @@ String (returns 500)
   defaultMessage: same as msg
 }
 ```
+* `StructError`: the error class to use for data structure validation checks - an `err instanceof StructError` check will be used on it, and if there is a match, the passed `err` shape is expected to match the shape of [superstruct errors](https://www.npmjs.com/package/superstruct) (optional)
 
 Pass either but not both `msg` and `options`.
 * If neither is provided then a 500 is sent automatically with a generic error.
