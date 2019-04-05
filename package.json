@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/effects-loop/server-utils#readme",
   "dependencies": {
+    "@koa/cors": "^3.0.0",
     "bunyan": "^1.8.12",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",

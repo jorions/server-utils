@@ -2,19 +2,25 @@
 
 const Koa = require('koa')
 const bodyParser = require('koa-bodyparser')
+const cors = require('@koa/cors')
 
 const buildLogger = require('./initializers/logger')
 const { addTracking, logInfo, errorFallback } = require('./lib/middleware')
 const handleError = require('./lib/handleError')
 
-const buildServer = ({ name, routes, noLogging = false }) => {
+const buildServer = ({ name, routes, noLogging = false, allowCors = false, middleware = [] }) => {
   const log = buildLogger(name)
   const app = new Koa()
 
   app.use(bodyParser())
   app.use(addTracking)
   if (!noLogging) app.use(logInfo(log))
+  if (allowCors) app.use(cors())
   app.use(errorFallback)
+
+  middleware.forEach(mid => {
+    app.use(mid)
+  })
 
   if (routes) {
     routes.forEach(route => {
