@@ -28,7 +28,7 @@ String (returns 500)
   [optionCode]:
     {
       status: Number,
-      isError: Bool (optional, determines whether the err is added to state.error state.warning or state.error),
+      isError: Bool (optional, if true state.err = err, else state.warning = (message || err.message)),
       message: String (optional, overrides err.message as returned error.message),
       code: String (optional, overrides optionCode as returned error.code),
       noCode: Bool (optional, when true no error.code is returned)
@@ -36,7 +36,7 @@ String (returns 500)
 
     OR
 
-    Number (status to return, which means the thrown error.message is sent; if >= 500, logs as an error)
+    Number (status to return, which means the thrown err.message and err.code are sent; if >= 500, state.err = err)
   ...
   defaultMessage: same as msg
 }
