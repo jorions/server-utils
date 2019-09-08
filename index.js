@@ -1,6 +1,7 @@
 'use strict'
 
 const Koa = require('koa')
+const Router = require('@koa/router')
 const bodyParser = require('koa-bodyparser')
 const cors = require('@koa/cors')
 
@@ -33,5 +34,6 @@ const buildServer = ({ name, routes, noLogging = false, allowCors = false, middl
 
 module.exports = {
   buildServer,
+  buildRouter: options => new Router(typeof options === 'string' ? { prefix: options } : options),
   handleError,
 }
