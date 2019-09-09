@@ -1,6 +1,6 @@
 {
   "name": "effectsloop-server-utils",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Utilities useful for spinning up servers",
   "main": "index.js",
   "scripts": {
