@@ -1,31 +1,70 @@
 'use strict'
 
 const Koa = require('koa')
+const Router = require('@koa/router')
 const bodyParser = require('koa-bodyparser')
 const cors = require('@koa/cors')
 
 const buildLogger = require('./initializers/logger')
-const { addTracking, logInfo, errorFallback } = require('./lib/middleware')
+const {
+  errorFallback,
+  addTracking,
+  logInfo,
+  setMaxRequestLoggingLen,
+  setMaxResponseLoggingLen,
+  handle404,
+} = require('./lib/middleware')
 const handleError = require('./lib/handleError')
 
-const buildServer = ({ name, routes, noLogging = false, allowCors = false, middleware = [] }) => {
+const buildServer = ({
+  name,
+  routes,
+  noLogging = false,
+  allowCors = false,
+  middleware = [],
+  requestBodyMaxLoggingLen,
+  responseBodyMaxLoggingLen,
+  port,
+  beforeStartup,
+}) => {
   const log = buildLogger(name)
   const app = new Koa()
 
-  app.use(bodyParser())
+  app.use(errorFallback) // Use first to catch all errors
+
+  app.use(bodyParser()) // Use second so we can safely assume body is at least = to {}
   app.use(addTracking)
   if (!noLogging) app.use(logInfo(log))
   if (allowCors) app.use(cors())
-  app.use(errorFallback)
+  if (requestBodyMaxLoggingLen) app.use(setMaxRequestLoggingLen(requestBodyMaxLoggingLen))
+  if (responseBodyMaxLoggingLen) app.use(setMaxResponseLoggingLen(responseBodyMaxLoggingLen))
 
   middleware.forEach(mid => {
     app.use(mid)
   })
 
-  if (routes) {
-    routes.forEach(route => {
-      app.use(route.routes())
-    })
+  routes.forEach(route => {
+    app.use(route.routes())
+  })
+
+  app.use(handle404) // Use after routes so we can handle 404s
+
+  if (beforeStartup) {
+    beforeStartup
+      .then(() => {
+        app.listen(port)
+        log.info(`Server listening on port ${port}!`)
+      })
+      .catch(err => {
+        log.error({ err }, 'The server failed to start')
+      })
+  } else {
+    try {
+      app.listen(port)
+      log.info(`Server listening on port ${port}!`)
+    } catch (err) {
+      log.error({ err }, 'The server failed to start')
+    }
   }
 
   return { app, log }
@@ -33,5 +72,6 @@ const buildServer = ({ name, routes, noLogging = false, allowCors = false, middl
 
 module.exports = {
   buildServer,
+  buildRouter: options => new Router(typeof options === 'string' ? { prefix: options } : options),
   handleError,
 }
