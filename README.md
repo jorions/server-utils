@@ -29,7 +29,7 @@ Receives `{ name, routes, port, beforeStartup, noLogging, allowCors, middleware 
 * `name`: String. Server name for use in logging - even if you don't use logging middleware, `buildServer` returns an object that includes a `log` fn for you to call, which uses this name. (required)
 * `routes`: Array[buildRouter()]. Array of routes to use built with the `buildRouter` API fn. (required)
 * `port`: Number. The port for the server to listen on. (required)
-* `beforeStartup`: Promise. Anything you want to happen before we start listening on a port, such as connecting to a DB. (optional)
+* `beforeStartup`: Function(log) => Promise. Anything you want to happen before we start listening on a port, such as connecting to a DB. It must be a function that returns a Promise. The function is passed the `log` for use before the server starts listening. (optional)
 * `noLogging`: Bool. Whether you want each request to be logged via the logging middleware. (optional, defaults false)
 * `allowCors`: Bool. Whether you want to allow CORS for the server. (optional, defaults false)
 * `middleware`: Array[fn()]: Array of middleware you would like to use. (optional)
@@ -228,6 +228,19 @@ const userRoutes = require('../userRoutes')
 
 const { SERVER_PORT } = process.env
 
+const connectToDB = log = new Promise((resolve, reject) => {
+  // DB connection logic here
+  db.on('error', err => {
+    log.error({ err }, 'Connection error')
+    reject()
+  })
+
+  db.on('open', () => {
+    log.info('Connected to the DB!')
+    resolve()
+  })
+})
+
 // The only unused option here is noLogging
 const { app, log } = buildServer({
   name: 'user-service',
@@ -236,7 +249,7 @@ const { app, log } = buildServer({
   allowCors: true,
   requestBodyMaxLoggingLen: 300,
   responseBodyMaxLoggingLen: 400,
-  beforeStartup: connectToDB(),
+  beforeStartup: connectToDB,
 })
 
 module.exports = { app, log }

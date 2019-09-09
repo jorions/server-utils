@@ -50,7 +50,7 @@ const buildServer = ({
   app.use(handle404) // Use after routes so we can handle 404s
 
   if (beforeStartup) {
-    beforeStartup
+    beforeStartup(log)
       .then(() => {
         app.listen(port)
         log.info(`Server listening on port ${port}!`)
