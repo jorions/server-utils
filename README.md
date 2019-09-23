@@ -25,12 +25,16 @@ It uses Koa under the hood because I like how lightweight it is, so this is also
 
 ### Arguments
 
-Receives `{ name, routes, port, beforeStartup, noLogging, allowCors, middleware }`
+Receives `{ name, routes, port, beforeStartup, noLogging, logPath, allowCors, middleware }`
 * `name`: String. Server name for use in logging - even if you don't use logging middleware, `buildServer` returns an object that includes a `log` fn for you to call, which uses this name. (required)
-* `routes`: Array[buildRouter()]. Array of routes to use built with the `buildRouter` API fn. (required)
 * `port`: Number. The port for the server to listen on. (required)
+* `routes`: Array[buildRouter()]. Array of routes to use built with the `buildRouter` API fn. (optional)
 * `beforeStartup`: Function(log) => Promise. Anything you want to happen before we start listening on a port, such as connecting to a DB. It must be a function that returns a Promise. The function is passed the `log` for use before the server starts listening. (optional)
 * `noLogging`: Bool. Whether you want each request to be logged via the logging middleware. (optional, defaults false)
+* `logPath`: String | Bool. The path of the folder where you want to save your log files to. (optional)
+  * When not passed, output is sent to the console.
+  * When passed as a string, output is sent to a file in the specified directory with the syntax `directory/name.log`. The log file is rotated out once per day, and 3 days of logs are held.
+  * When passed as a boolean (`true`), the directory path is assumed, and is relevant just to my infrastructure. Sorry!
 * `allowCors`: Bool. Whether you want to allow CORS for the server. (optional, defaults false)
 * `middleware`: Array[fn()]: Array of middleware you would like to use. (optional)
 * `requestBodyMaxLoggingLen`: Number: The max length of the request body that you want to log - anything afterwards is truncated. Only matters if `noLogging` is not set. (optional, defaults to 500)

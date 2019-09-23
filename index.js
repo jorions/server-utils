@@ -18,7 +18,8 @@ const handleError = require('./lib/handleError')
 
 const buildServer = ({
   name,
-  routes,
+  logPath,
+  routes = [],
   noLogging = false,
   allowCors = false,
   middleware = [],
@@ -27,7 +28,7 @@ const buildServer = ({
   port,
   beforeStartup,
 }) => {
-  const log = buildLogger(name)
+  const log = buildLogger(name, logPath)
   const app = new Koa()
 
   app.use(errorFallback) // Use first to catch all errors
