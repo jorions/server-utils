@@ -23,64 +23,113 @@ It uses Koa under the hood because I like how lightweight it is, so this is also
 
 ## buildServer
 
-### Arguments
+Used to build the base Koa server and Bunyan logger, with optional middleware.
 
-Receives `{ name, routes, port, beforeStartup, noLogging, logPath, allowCors, middleware }`
-* `name`: String. Server name for use in logging - even if you don't use logging middleware, `buildServer` returns an object that includes a `log` fn for you to call, which uses this name. (required)
-* `port`: Number. The port for the server to listen on. (required)
-* `routes`: Array[buildRouter()]. Array of routes to use built with the `buildRouter` API fn. (optional)
-* `beforeStartup`: Function(log) => Promise. Anything you want to happen before we start listening on a port, such as connecting to a DB. It must be a function that returns a Promise. The function is passed the `log` for use before the server starts listening. (optional)
-* `noLogging`: Bool. Whether you want each request to be logged via the logging middleware. (optional, defaults false)
-* `logPath`: String | Bool. The path of the folder where you want to save your log files to. (optional)
-  * When not passed, output is sent to the console.
-  * When passed as a string, output is sent to a file in the specified directory with the syntax `directory/name.log`. The log file is rotated out once per day, and 3 days of logs are held.
-  * When passed as a boolean (`true`), the directory path is assumed, and is relevant just to my infrastructure. Sorry!
-* `allowCors`: Bool. Whether you want to allow CORS for the server. (optional, defaults false)
-* `middleware`: Array[fn()]: Array of middleware you would like to use. (optional)
-* `requestBodyMaxLoggingLen`: Number: The max length of the request body that you want to log - anything afterwards is truncated. Only matters if `noLogging` is not set. (optional, defaults to 500)
-* `responseBodyMaxLoggingLen`: Number: The max length of the response body that you want to log - anything afterwards is truncated. Only matters if `noLogging` is not set. (optional, defaults to 500)
+Ex:
+```
+const { app, log } = buildServer({ name: 'my-server', port: 8080, routes: routesArray })
+```
+
+### Arguments
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| **`name`** * | String | | Server name for use in logging - even if you don't use logging middleware, `buildServer` returns an object that includes a `log` fn for you to call, which uses this name. |
+| **`port`** * | Number | | The port for the server to listen on. |
+| `routes` | Array[buildRouter()] | | Array of routes to use built with the `buildRouter` API fn. |
+| `beforeStartup` | Function(log) => Promise | | Anything you want to happen before we start listening on a port, such as connecting to a DB. It must be a function that returns a Promise. The function is passed the `log` for use before the server starts listening. |
+| `noLogging` | Boolean | `false` | Whether you want each request to be logged via the logging middleware. |
+| `logPath` | String or Boolean | | The path of the folder where you want to save your log files to. |
+| | | | When not passed, output is sent to the console. |
+| | | | When passed as a String, output is sent to a file in the specified directory with the syntax `[logPath].log`. The log file is rotated out once per day, and 3 days of logs are held as per the [Bunyan spec](https://github.com/trentm/node-bunyan#stream-type-rotating-file). |
+| | | | When passed as a Boolean (`true`), the directory path is assumed, and is relevant just to my infrastructure. Sorry! |
+| `allowCors` | Boolean | `false` | Whether you want to allow CORS for the server. |
+| `middleware` | Array[fn()] | | Array of middleware you would like to use. They are applied right before your routes. |
+| `requestBodyMaxLoggingLen` | Number | `500` | The max length of the request body that you want to log - anything afterwards is truncated. Only matters if `noLogging` is not set. |
+| `responseBodyMaxLoggingLen` | Number | `500` | The max length of the response body that you want to log - anything afterwards is truncated. Only matters if `noLogging` is not set. |
 
 ### Returns
-Returns `{ app, log }`
-* `app`: Koa server. This way you can do anything else you want to the server.
-* `log`: Bunyan logger. This is used to generate the request/response logging middleware, but is also provided here for you to call as you want.
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `app` | Koa server | This way you can do anything else you want to the server. |
+| `log` | Bunyan logger | This is used to generate the request/response logging middleware, but is also provided here for you to call as you want. |
 
 ### Logging In Depth
 When the logging middleware is enabled, each request gains several features:
 * Access to a logger which automatically includes the id of the request at `ctx.state.log`. It enables `ctx.log.info`, `ctx.log.warn`, and `ctx.log.error` calls from within routes.
 * Logging an `info` output on successful requests, a `warn` on requests with `ctx.state.warning`, and an `error` on requests with `ctx.state.err`. Because of this, I recommend using this middleware in conjunction with the `handleError` function that is also exposed by this library, as it leverages the paradigm.
 * Logging the following information upon completion of every request:
-  * `responseStatus`: Number. The response status.
-  * `method`: String. The request method.
-  * `url`: String. The request url.
-  * `body`: String or Object. The request body.
-    * Top-level `token` and `password` keys are logged as `*******`.
-    * Because request bodies can get long, logs of them are truncated to 500 characters by default. You can override this on a per-request basis with `ctx.state.requestBodyMaxLoggingLen`, or for all requests with the `requestBodyMaxLoggingLen` argument as described above.
-  * `ip`: String. The IP of the request.
-  * `responseTime`: Number. The response time in ms.
-  * `responseBody`: Object or Undefined. The response body.
-    * Top-level `token` and `password` keys are logged as `*******`.
-    * Because response bodies can get long, logs of them are truncated to 500 characters by default. You can override this on a per-request basis with `ctx.state.responseBodyMaxLoggingLen`, or for all requests with the `responseBodyMaxLoggingLen` argument as described above.
-  * `id`: String. The UUID of the request.
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `responseStatus` | Number | The response status. |
+| `method` | String | The request method. |
+| `url` | String | The request url. |
+| `body` | String or Object | The request body. |
+| | | Top-level `token` and `password` keys are logged as `*******`. |
+| | | Because request bodies can get long, logs of them are truncated to 500 characters by default. You can override this on a per-request basis with `ctx.state.requestBodyMaxLoggingLen`, or for all requests with the `requestBodyMaxLoggingLen` argument as described above. |
+| `ip` | String | The IP of the request. |
+| `responseTime` | Number | The response time in ms. |
+| `responseBody` | Object or Undefined | The response body. |
+| | | Top-level `token` and `password` keys are logged as `*******`. |
+| | | Because response bodies can get long, logs of them are truncated to 500 characters by default. You can override this on a per-request basis with `ctx.state.responseBodyMaxLoggingLen`, or for all requests with the `responseBodyMaxLoggingLen` argument as described above. |
+| `id` | String | The UUID of the request. |
 
 ## buildRouter
 
-### Arguments
+Used to build a Koa router.
 
-Receives `String: route prefix OR koaRouterOptions` - [koaRouterOptions](https://www.npmjs.com/package/@koa/router)
+Ex:
+```
+const router = buildRouter('/users')
+
+router.post('/sign-up', async ({ request, response, state }) => { ... })
+```
+
+### Arguments
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| n/a | String or Object (koa router options) | | When a String, is the route prefix to use. When an Object, is assumed to be [koaRouterOptions](https://www.npmjs.com/package/@koa/router). |
 
 ### Returns
-
-Returns an instance of a `Router` for you to apply `router.post`, `router.get`, etc routes to.
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| n/a | Router instance | An instance of a Koa `Router` for you to apply `router.post`, `router.get`, etc routes to. |
 
 ## handleError
 
+Used to handle errors in your routes with a self-documenting API.
+
+Ex:
+```
+router.post('/sign-up', async ({ request, response, state }) => {
+  try {
+    // route logic here
+  } catch (err) {
+    const options = {
+      emailTaken: 409,
+      usernameTaken: {
+        status: 409,
+        message: 'That username is already taken',
+        code: 'userTaken',
+      },
+      defaultMessage: 'Something broke while attempting to sign up',
+    }
+    handleError({ response, state, err, options })
+  }
+})
+```
+
 ### Arguments
 
-Receives `{ response, state, err, msg, options, StructError }`
-* `response`: Object. Koa response. (required)
-* `state`: Object. Koa state. (required)
-* `err`: Error. The thrown error. (required)
+| Name | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| **`response`** * | Object | | Koa response. |
+| **`state`** * | Object | | Koa state. |
+| **`err`** * | Error | | The thrown error. |
+| `msg` | Object or String | | The error response to use for all error cases. _See below._ |
+| `options` | Object | | The different possible error responses to use. _See below. |
+| `StructError` | StructError | | The error class to use for data structure validation checks - an `err instanceof StructError` check will be used on it, and if there is a match, the passed `err` shape is expected to match the shape of [superstruct errors](https://www.npmjs.com/package/superstruct). |
+
 * `msg`:
 ```
 {
@@ -112,7 +161,6 @@ String (returns 500)
   defaultMessage: same as msg
 }
 ```
-* `StructError`: StructError. The error class to use for data structure validation checks - an `err instanceof StructError` check will be used on it, and if there is a match, the passed `err` shape is expected to match the shape of [superstruct errors](https://www.npmjs.com/package/superstruct). (optional)
 
 Pass either but not both `msg` and `options`.
 * If neither is provided then a 500 is sent automatically with a generic error.
@@ -124,7 +172,7 @@ Standard errors have the format:
 ```
 {
   error: {
-    message: String
+    message: String (msg.message || msg || options[err.code].message || options[err.code])
     code: String (options[err.code].code || err.code) // Not sent for generic errors, or when options[err.code].noCode is passed
   }
 }
@@ -149,6 +197,7 @@ Validation (struct) errors have the format:
 ```
 const { buildRouter } = require('effectsloop-server-utils')
 
+const users = require('./someUserModule')
 const handleError = require('./handleError')
 
 const router = buildRouter('/users')
@@ -159,13 +208,17 @@ router.post('/sign-up', async ({ request, response, state }) => {
   } catch (err) {
     const { validationErrors } = users.signUp
 
-    // The codes for errors that could be thrown, and the statuses to send back for those errors
+    // The codes for errors that could be thrown, and the info to send back for those errors
     // 4xx errors will log a warning, and the message from the error will be sent in the
     // the response body as { error: { message: error message } }
     // The defaultMessage logs an error, and the response body is { error: { message: defaultMessage } }
     const options = {
       [validationErrors.EMAIL_TAKEN]: 409,
-      [validationErrors.USERNAME_TAKEN]: 409,
+      [validationErrors.USERNAME_TAKEN]: {
+        status: 409,
+        message: 'That username is already taken',
+        code: 'userTaken',
+      },
       defaultMessage: 'Something broke while attempting to sign up',
     }
 
