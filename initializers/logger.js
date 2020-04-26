@@ -3,7 +3,7 @@
 const bunyan = require('bunyan')
 const path = require('path')
 
-module.exports = (name, logPath) => {
+module.exports = ({ name, logPath }) => {
   const params = { name, serializers: bunyan.stdSerializers }
 
   if (logPath) {

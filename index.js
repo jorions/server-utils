@@ -18,6 +18,7 @@ const handleError = require('./lib/handleError')
 
 const buildServer = ({
   name,
+  log: providedLogger,
   logPath,
   routes = [],
   noLogging = false,
@@ -28,7 +29,9 @@ const buildServer = ({
   port,
   beforeStartup,
 }) => {
-  const log = buildLogger(name, logPath)
+  if (!providedLogger && name === undefined)
+    throw new Error('Must provide a `name` argument if you do not provide a `log` argument.')
+  const log = providedLogger || buildLogger({ name, logPath })
   const app = new Koa()
 
   app.use(errorFallback) // Use first to catch all errors
@@ -72,6 +75,7 @@ const buildServer = ({
 }
 
 module.exports = {
+  buildLogger,
   buildServer,
   buildRouter: options => new Router(typeof options === 'string' ? { prefix: options } : options),
   handleError,
