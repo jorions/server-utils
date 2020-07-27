@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/effects-loop/server-utils#readme",
   "devDependencies": {
-    "eslint": "^6.3.0",
+    "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-config-prettier": "^6.2.0",
     "eslint-plugin-import": "^2.18.2",
