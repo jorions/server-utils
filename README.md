@@ -153,7 +153,7 @@ router.post('/sign-up', async ({ request, response, state }) => {
 | **`state`** * | Object | **Required** | Koa state. |
 | **`err`** * | Error | **Required** | The thrown error. |
 | `msg` | Object or String | | The error response to use for all error cases. _See below._ |
-| `options` | Object | | The different possible error responses to use. _See below. |
+| `options` | Object | | The different possible error responses to use. _See below._ |
 | `StructError` | StructError | | The error class to use for data structure validation checks - an `err instanceof StructError` check will be used on it, and if there is a match, the passed `err` shape is expected to match the shape of [superstruct errors](https://www.npmjs.com/package/superstruct). |
 
 * `msg`:
