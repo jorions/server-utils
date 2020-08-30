@@ -34,7 +34,7 @@ const buildServer = ({
   const log = providedLogger || buildLogger({ name, logPath })
   const app = new Koa()
 
-  app.use(errorFallback) // Use first to catch all errors
+  app.use(errorFallback(log)) // Use first to catch all errors
 
   app.use(bodyParser()) // Use second so we can safely assume body is at least = to {}
   app.use(addTracking)
